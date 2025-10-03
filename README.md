@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Vehicle Rental System
 
 A comprehensive vehicle rental management system with role-based access control.
@@ -116,3 +117,7 @@ A comprehensive vehicle rental management system with role-based access control.
 - `superadmin` - Full system access
 - `vehicleadmin` - Vehicle and booking management
 - `driver` - Vehicle booking and payments
+=======
+# Vehilce__Management
+ChatGPT said:  A Vehicle Management System allows users to add vehicles and book them, while tracking maintenance, fuel, and usage efficiently.
+>>>>>>> b13d8690d92fd51777f1e810982756ebd0fe1db6
