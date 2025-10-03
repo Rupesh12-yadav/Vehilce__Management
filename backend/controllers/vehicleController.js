@@ -1,0 +1,177 @@
+const Vehicle = require('../models/Vehicle');
+const Booking = require('../models/Booking');
+
+exports.createVehicle = async (req, res) => {
+  try {
+    const vehicle = await Vehicle.create({ ...req.body, owner: req.user._id });
+    res.status(201).json({ success: true, data: vehicle });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getVehicles = async (req, res) => {
+  try {
+    const { type, city, minPrice, maxPrice, availability, page = 1, limit = 10 } = req.query;
+    
+    let filter = {};
+    if (type) filter.type = type;
+    if (city) filter['location.city'] = new RegExp(city, 'i');
+    if (availability !== undefined) filter.availability = availability === 'true';
+    if (minPrice || maxPrice) {
+      filter.pricePerDay = {};
+      if (minPrice) filter.pricePerDay.$gte = Number(minPrice);
+      if (maxPrice) filter.pricePerDay.$lte = Number(maxPrice);
+    }
+
+    const vehicles = await Vehicle.find(filter)
+      .populate('owner', 'name email phone rating')
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .sort({ createdAt: -1 });
+
+    const total = await Vehicle.countDocuments(filter);
+    
+    res.json({ 
+      success: true, 
+      data: vehicles, 
+      pagination: { 
+        current: page, 
+        pages: Math.ceil(total / limit), 
+        total 
+      } 
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getMyVehicles = async (req, res) => {
+  try {
+    const vehicles = await Vehicle.find({ owner: req.user._id })
+      .populate('owner', 'name email')
+      .sort({ createdAt: -1 });
+    res.json({ success: true, data: vehicles });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getVehicleById = async (req, res) => {
+  try {
+    const vehicle = await Vehicle.findById(req.params.id)
+      .populate('owner', 'name email phone rating totalRides');
+    
+    if (!vehicle) {
+      return res.status(404).json({ success: false, message: 'Vehicle not found' });
+    }
+    
+    res.json({ success: true, data: vehicle });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.updateVehicle = async (req, res) => {
+  try {
+    const vehicle = await Vehicle.findById(req.params.id);
+    
+    if (!vehicle) {
+      return res.status(404).json({ success: false, message: 'Vehicle not found' });
+    }
+    
+    if (vehicle.owner.toString() !== req.user._id.toString() && req.user.role !== 'superadmin') {
+      return res.status(403).json({ success: false, message: 'Not authorized' });
+    }
+    
+    const updatedVehicle = await Vehicle.findByIdAndUpdate(
+      req.params.id, 
+      req.body, 
+      { new: true, runValidators: true }
+    );
+    
+    res.json({ success: true, data: updatedVehicle });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.deleteVehicle = async (req, res) => {
+  try {
+    const vehicle = await Vehicle.findById(req.params.id);
+    
+    if (!vehicle) {
+      return res.status(404).json({ success: false, message: 'Vehicle not found' });
+    }
+    
+    if (vehicle.owner.toString() !== req.user._id.toString() && req.user.role !== 'superadmin') {
+      return res.status(403).json({ success: false, message: 'Not authorized' });
+    }
+    
+    // Check for active bookings
+    const activeBookings = await Booking.find({
+      vehicle: req.params.id,
+      status: { $in: ['pending', 'confirmed', 'ongoing'] }
+    });
+    
+    if (activeBookings.length > 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Cannot delete vehicle with active bookings' 
+      });
+    }
+    
+    await Vehicle.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Vehicle deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.toggleAvailability = async (req, res) => {
+  try {
+    const vehicle = await Vehicle.findById(req.params.id);
+    
+    if (!vehicle) {
+      return res.status(404).json({ success: false, message: 'Vehicle not found' });
+    }
+    
+    if (vehicle.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Not authorized' });
+    }
+    
+    vehicle.availability = !vehicle.availability;
+    await vehicle.save();
+    
+    res.json({ 
+      success: true, 
+      message: `Vehicle ${vehicle.availability ? 'enabled' : 'disabled'} successfully`,
+      data: vehicle 
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getVehicleStats = async (req, res) => {
+  try {
+    const stats = await Vehicle.aggregate([
+      { $match: { owner: req.user._id } },
+      {
+        $group: {
+          _id: null,
+          totalVehicles: { $sum: 1 },
+          availableVehicles: {
+            $sum: { $cond: [{ $eq: ['$availability', true] }, 1, 0] }
+          },
+          totalBookings: { $sum: '$totalBookings' },
+          avgRating: { $avg: '$rating' }
+        }
+      }
+    ]);
+    
+    res.json({ success: true, data: stats[0] || {} });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

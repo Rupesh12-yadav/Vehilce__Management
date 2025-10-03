@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Honda City",
+    "brand": "Honda",
+    "model": "City",
+    "type": "car",
+    "year": 2022,
+    "registrationNumber": "MH12AB1234",
+    "pricePerDay": 2000,
+    "pricePerHour": 150,
+    "fuelType": "petrol",
+    "seatingCapacity": 5,
+    "transmission": "manual",
+    "features": "AC, Music System, GPS",
+    "location": {
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "pincode": "400001",
+      "address": "Andheri West, Mumbai"
+    }
+  },
+  {
+    "name": "Royal Enfield Classic",
+    "brand": "Royal Enfield",
+    "model": "Classic 350",
+    "type": "bike",
+    "year": 2023,
+    "registrationNumber": "MH14CD5678",
+    "pricePerDay": 800,
+    "pricePerHour": 80,
+    "fuelType": "petrol",
+    "seatingCapacity": 2,
+    "transmission": "manual",
+    "features": "Electric Start, LED Lights",
+    "location": {
+      "city": "Pune",
+      "state": "Maharashtra",
+      "pincode": "411001",
+      "address": "FC Road, Pune"
+    }
+  },
+  {
+    "name": "Mahindra Bolero",
+    "brand": "Mahindra",
+    "model": "Bolero",
+    "type": "truck",
+    "year": 2021,
+    "registrationNumber": "GJ01EF9012",
+    "pricePerDay": 3500,
+    "pricePerHour": 300,
+    "fuelType": "diesel",
+    "seatingCapacity": 7,
+    "transmission": "manual",
+    "features": "4WD, High Ground Clearance",
+    "location": {
+      "city": "Ahmedabad",
+      "state": "Gujarat",
+      "pincode": "380001",
+      "address": "Navrangpura, Ahmedabad"
+    }
+  }
+]
