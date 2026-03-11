@@ -6,6 +6,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
+const path = require('path');
 const connectDB = require('./config/db');
 require('dotenv').config();
 
@@ -92,19 +93,16 @@ app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Server is running', timestamp: new Date().toISOString() });
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ 
-    success: false, 
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error' 
+// Serve Frontend Static Files (Production)
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../frontend/build')));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
   });
-});
+}
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ success: false, message: 'Route not found' });
-});
+
 
 const PORT = process.env.PORT || 5000;
 
