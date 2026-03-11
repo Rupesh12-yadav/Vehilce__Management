@@ -27,4 +27,38 @@ router.get('/:id', auth, getBookingById);
 // Admin routes
 router.put('/:id/status', auth, checkRole(['vehicleadmin', 'superadmin']), updateBookingStatus);
 
+// Driver routes - cancel booking
+router.put('/:id/cancel', auth, checkRole(['driver']), async (req, res) => {
+  try {
+    const { reason } = req.body;
+    const booking = await Booking.findById(req.params.id);
+    
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+    
+    // Check if the driver owns this booking
+    if (booking.driver.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Not authorized to cancel this booking' });
+    }
+    
+    // Only allow cancellation of pending bookings
+    if (booking.status !== 'pending') {
+      return res.status(400).json({ success: false, message: 'Only pending bookings can be cancelled' });
+    }
+    
+    booking.status = 'cancelled';
+    if (reason) booking.cancellationReason = reason;
+    
+    // Update vehicle availability
+    await Vehicle.findByIdAndUpdate(booking.vehicle, { availability: true });
+    
+    await booking.save();
+    
+    res.json({ success: true, message: 'Booking cancelled successfully', data: booking });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 module.exports = router;

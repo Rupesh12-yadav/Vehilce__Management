@@ -7,7 +7,8 @@ const {
   updateVehicle, 
   deleteVehicle,
   toggleAvailability,
-  getVehicleStats
+  getVehicleStats,
+  getCities
 } = require('../controllers/vehicleController');
 const auth = require('../middleware/authMiddleware');
 const checkRole = require('../middleware/roleMiddleware');
@@ -15,6 +16,7 @@ const router = express.Router();
 
 // Public routes
 router.get('/', getVehicles);
+router.get('/cities', getCities);
 router.get('/:id', getVehicleById);
 
 // Vehicle admin routes

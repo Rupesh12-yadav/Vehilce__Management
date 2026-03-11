@@ -126,31 +126,50 @@ exports.deleteUser = async (req, res) => {
 
 exports.getUserStats = async (req, res) => {
   try {
-    const stats = await User.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalUsers: { $sum: 1 },
-          activeUsers: {
-            $sum: { $cond: [{ $eq: ['$isActive', true] }, 1, 0] }
-          },
-          drivers: {
-            $sum: { $cond: [{ $eq: ['$role', 'driver'] }, 1, 0] }
-          },
-          vehicleAdmins: {
-            $sum: { $cond: [{ $eq: ['$role', 'vehicleadmin'] }, 1, 0] }
-          },
-          superAdmins: {
-            $sum: { $cond: [{ $eq: ['$role', 'superadmin'] }, 1, 0] }
-          },
-          verifiedUsers: {
-            $sum: { $cond: [{ $eq: ['$isVerified', true] }, 1, 0] }
+    const [userStats, bookingStats, vehicleStats] = await Promise.all([
+      User.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalUsers: { $sum: 1 },
+            activeUsers: { $sum: { $cond: [{ $eq: ['$isActive', true] }, 1, 0] } },
+            drivers: { $sum: { $cond: [{ $eq: ['$role', 'driver'] }, 1, 0] } },
+            vehicleAdmins: { $sum: { $cond: [{ $eq: ['$role', 'vehicleadmin'] }, 1, 0] } },
+            superAdmins: { $sum: { $cond: [{ $eq: ['$role', 'superadmin'] }, 1, 0] } },
+            verifiedUsers: { $sum: { $cond: [{ $eq: ['$isVerified', true] }, 1, 0] } }
           }
         }
-      }
+      ]),
+      Booking.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalBookings: { $sum: 1 },
+            completedBookings: { $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] } },
+            pendingBookings: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
+            totalRevenue: { $sum: { $cond: [{ $eq: ['$status', 'completed'] }, '$totalAmount', 0] } }
+          }
+        }
+      ]),
+      Vehicle.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalVehicles: { $sum: 1 },
+            availableVehicles: { $sum: { $cond: [{ $eq: ['$availability', true] }, 1, 0] } }
+          }
+        }
+      ])
     ]);
     
-    res.json({ success: true, data: stats[0] || {} });
+    res.json({ 
+      success: true, 
+      data: {
+        ...userStats[0] || {},
+        ...bookingStats[0] || {},
+        ...vehicleStats[0] || {}
+      }
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

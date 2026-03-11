@@ -8,11 +8,14 @@ const connectDB = async () => {
       console.log('Please add: MONGO_URI=mongodb://localhost:27017/vehicle-rental');
       return;
     }
-    await mongoose.connect(mongoUri);
+    await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000,
+    });
     console.log('✅ MongoDB Connected');
   } catch (error) {
     console.error('❌ MongoDB Connection Error:', error.message);
-    console.log('Make sure MongoDB is running or use MongoDB Atlas');
+    process.exit(1);
   }
 };
 

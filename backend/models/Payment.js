@@ -7,7 +7,7 @@ const paymentSchema = new mongoose.Schema({
   amount: { type: Number, required: true },
   paymentMethod: { 
     type: String, 
-    enum: ['cash', 'card', 'upi', 'netbanking', 'wallet'], 
+    enum: ['cash', 'card', 'upi', 'netbanking', 'wallet', 'razorpay'], 
     required: true 
   },
   paymentType: { 
@@ -23,7 +23,10 @@ const paymentSchema = new mongoose.Schema({
   transactionId: { type: String },
   gatewayResponse: { type: Object },
   refundAmount: { type: Number, default: 0 },
-  refundReason: { type: String }
+  refundReason: { type: String },
+  paidAt: { type: Date },
+  refundedAt: { type: Date },
+  failureReason: { type: String }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Payment', paymentSchema);

@@ -3,7 +3,18 @@ const Booking = require('../models/Booking');
 
 exports.createVehicle = async (req, res) => {
   try {
-    const vehicle = await Vehicle.create({ ...req.body, owner: req.user._id });
+    const vehicleData = {
+      ...req.body,
+      owner: req.user._id,
+      // Ensure nested location is set from flat fields
+      location: {
+        city: req.body.city,
+        state: req.body.state,
+        pincode: req.body.pincode,
+        address: req.body.address
+      }
+    };
+    const vehicle = await Vehicle.create(vehicleData);
     res.status(201).json({ success: true, data: vehicle });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -16,7 +27,13 @@ exports.getVehicles = async (req, res) => {
     
     let filter = {};
     if (type) filter.type = type;
-    if (city) filter['location.city'] = new RegExp(city, 'i');
+    // Support both nested location.city and flat city field
+    if (city) {
+      filter.$or = [
+        { 'location.city': new RegExp(city, 'i') },
+        { city: new RegExp(city, 'i') }
+      ];
+    }
     if (availability !== undefined) filter.availability = availability === 'true';
     if (minPrice || maxPrice) {
       filter.pricePerDay = {};
@@ -155,22 +172,108 @@ exports.toggleAvailability = async (req, res) => {
 
 exports.getVehicleStats = async (req, res) => {
   try {
-    const stats = await Vehicle.aggregate([
-      { $match: { owner: req.user._id } },
+    // Get start of current month in UTC for consistent timezone handling
+    const now = new Date();
+    const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
+    
+    const [vehicleStats, bookingStats] = await Promise.all([
+      Vehicle.aggregate([
+        { $match: { owner: req.user._id } },
+        {
+          $group: {
+            _id: null,
+            totalVehicles: { $sum: 1 },
+            availableVehicles: { $sum: { $cond: [{ $eq: ['$availability', true] }, 1, 0] } },
+            unavailableVehicles: { $sum: { $cond: [{ $eq: ['$availability', false] }, 1, 0] } },
+            totalBookings: { $sum: '$totalBookings' },
+            avgRating: { $avg: '$rating' }
+          }
+        }
+      ]),
+      Booking.aggregate([
+        { $match: { vehicleOwner: req.user._id } },
+        {
+          $group: {
+            _id: null,
+            totalBookings: { $sum: 1 },
+            pendingBookings: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
+            confirmedBookings: { $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] } },
+            completedBookings: { $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] } },
+            totalEarnings: { $sum: { $cond: [{ $eq: ['$status', 'completed'] }, '$totalAmount', 0] } },
+            monthlyEarnings: { $sum: { $cond: [{ $and: [{ $eq: ['$status', 'completed'] }, { $gte: ['$createdAt', startOfMonth] }] }, '$totalAmount', 0] } }
+          }
+        }
+      ])
+    ]);
+    
+    res.json({ 
+      success: true, 
+      data: {
+        ...vehicleStats[0] || {},
+        ...bookingStats[0] || {}
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Get unique cities for autocomplete
+exports.getCities = async (req, res) => {
+  try {
+    const { search } = req.query;
+    
+    // Get unique cities from vehicles
+    const cities = await Vehicle.aggregate([
+      {
+        $match: {
+          availability: true,
+          $or: [
+            { city: { $regex: search || '', $options: 'i' } },
+            { 'location.city': { $regex: search || '', $options: 'i' } }
+          ]
+        }
+      },
       {
         $group: {
           _id: null,
-          totalVehicles: { $sum: 1 },
-          availableVehicles: {
-            $sum: { $cond: [{ $eq: ['$availability', true] }, 1, 0] }
-          },
-          totalBookings: { $sum: '$totalBookings' },
-          avgRating: { $avg: '$rating' }
+          cities: {
+            $addToSet: {
+              $cond: [
+                { $ne: ['$city', null] },
+                '$city',
+                '$location.city'
+              ]
+            }
+          }
+        }
+      },
+      {
+        $unwind: '$cities'
+      },
+      {
+        $match: {
+          cities: { $ne: null, $ne: '' }
+        }
+      },
+      {
+        $sort: { cities: 1 }
+      },
+      {
+        $limit: 20
+      },
+      {
+        $project: {
+          _id: 0,
+          city: '$cities'
         }
       }
     ]);
     
-    res.json({ success: true, data: stats[0] || {} });
+    res.json({ 
+      success: true, 
+      data: cities.map(c => c.city)
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

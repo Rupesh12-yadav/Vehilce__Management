@@ -2,21 +2,21 @@ const mongoose = require('mongoose');
 
 const bookingSchema = new mongoose.Schema({
   bookingId: { type: String, unique: true, required: true },
-  vehicle: { type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle', required: true },
-  driver: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  vehicleOwner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  startDate: { type: Date, required: true },
+  vehicle: { type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle', required: true, index: true },
+  driver: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  vehicleOwner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  startDate: { type: Date, required: true, index: true },
   endDate: { type: Date, required: true },
   startTime: { type: String, required: true },
   endTime: { type: String, required: true },
   pickupLocation: {
     address: { type: String, required: true },
-    city: { type: String, required: true },
+    city: { type: String, required: true, index: true },
     pincode: { type: String, required: true }
   },
   dropLocation: {
     address: { type: String, required: true },
-    city: { type: String, required: true },
+    city: { type: String, required: true, index: true },
     pincode: { type: String, required: true }
   },
   bookingType: { 
@@ -33,12 +33,14 @@ const bookingSchema = new mongoose.Schema({
   status: { 
     type: String, 
     enum: ['pending', 'confirmed', 'ongoing', 'completed', 'cancelled', 'rejected'], 
-    default: 'pending' 
+    default: 'pending',
+    index: true
   },
   paymentStatus: { 
     type: String, 
     enum: ['pending', 'paid', 'partial', 'refunded', 'failed'], 
-    default: 'pending' 
+    default: 'pending',
+    index: true
   },
   paymentMethod: { 
     type: String, 
@@ -62,5 +64,14 @@ const bookingSchema = new mongoose.Schema({
     description: { type: String }
   }]
 }, { timestamps: true });
+
+// Compound indexes for common queries
+bookingSchema.index({ driver: 1, status: 1 });
+bookingSchema.index({ vehicle: 1, status: 1 });
+bookingSchema.index({ vehicleOwner: 1, status: 1 });
+bookingSchema.index({ status: 1, createdAt: -1 });
+bookingSchema.index({ startDate: 1, endDate: 1 });
+bookingSchema.index({ driver: 1, createdAt: -1 });
+bookingSchema.index({ vehicleOwner: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Booking', bookingSchema);
