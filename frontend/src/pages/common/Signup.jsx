@@ -45,15 +45,14 @@ const Signup = () => {
   const roles = [
     { value: 'driver', label: 'Driver', icon: '🚗', desc: 'Rent and drive vehicles' },
     { value: 'vehicleadmin', label: 'Vehicle Admin', icon: '🏢', desc: 'Manage vehicle fleet' },
-    { value: 'superadmin', label: 'Super Admin', icon: '⚡', desc: 'Full system access' },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
-      <div className="max-w-4xl w-full">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4 py-8">
+      <div className="max-w-5xl w-full">
         {/* Header */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-4">
+        <div className="text-center mb-6">
+          <Link to="/" className="inline-flex items-center gap-2 mb-4 hover:opacity-80 transition">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
               <span className="text-white text-2xl">🚗</span>
             </div>
@@ -61,19 +60,19 @@ const Signup = () => {
               RentEase
             </span>
           </Link>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
             Create Your Account
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-sm md:text-base">
             Join us and start your journey today
           </p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          <div className="grid grid-cols-1 md:grid-cols-5">
+          <div className="grid grid-cols-1 lg:grid-cols-2">
             {/* Left Side - Role Selection */}
-            <div className="md:col-span-2 bg-gradient-to-br from-blue-600 to-indigo-700 p-6 md:p-8">
-              <h2 className="text-xl font-bold text-white mb-4">
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-6 lg:p-8">
+              <h2 className="text-xl font-bold text-white mb-3">
                 Choose Your Role
               </h2>
               <p className="text-blue-100 mb-6 text-sm">
@@ -86,17 +85,19 @@ const Signup = () => {
                     key={role.value}
                     type="button"
                     onClick={() => setFormData({ ...formData, role: role.value })}
-                    className={`w-full p-4 rounded-xl text-left transition-all ${
+                    className={`w-full p-4 rounded-xl text-left transition-all duration-200 ${
                       formData.role === role.value
-                        ? 'bg-white/20 border-2 border-white text-white'
-                        : 'bg-white/10 border-2 border-transparent text-blue-100 hover:bg-white/20'
+                        ? 'bg-white text-blue-600 shadow-lg scale-105'
+                        : 'bg-white/10 border border-white/30 text-white hover:bg-white/20'
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">{role.icon}</span>
+                      <span className="text-3xl">{role.icon}</span>
                       <div>
-                        <div className="font-semibold">{role.label}</div>
-                        <div className="text-xs text-blue-200">{role.desc}</div>
+                        <div className="font-semibold text-base">{role.label}</div>
+                        <div className={`text-xs mt-1 ${
+                          formData.role === role.value ? 'text-blue-500' : 'text-blue-200'
+                        }`}>{role.desc}</div>
                       </div>
                     </div>
                   </button>
@@ -109,7 +110,7 @@ const Signup = () => {
                 </p>
                 <Link 
                   to="/login" 
-                  className="text-white font-semibold hover:underline mt-1 inline-block"
+                  className="text-white font-semibold hover:underline mt-1 inline-block transition"
                 >
                   Sign In →
                 </Link>
@@ -117,54 +118,56 @@ const Signup = () => {
             </div>
 
             {/* Right Side - Form */}
-            <div className="md:col-span-3 p-6 md:p-8">
-              <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="p-6 lg:p-8">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 {error && (
                   <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm">
                     {error}
                   </div>
                 )}
 
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    placeholder="Enter your full name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    required
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      placeholder="Enter your full name"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      placeholder="Enter your email"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      required
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    placeholder="Enter your email"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1.5">
                     Password *
                   </label>
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
                       id="password"
-                      placeholder="Create a password"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition pr-12"
+                      placeholder="Create a password (min 6 characters)"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition pr-12"
                       value={formData.password}
                       onChange={(e) => setFormData({...formData, password: e.target.value})}
                       required
@@ -189,38 +192,40 @@ const Signup = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    placeholder="Enter your phone number"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  />
-                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      placeholder="Enter your phone number"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    />
+                  </div>
 
-                <div>
-                  <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-                    Address
-                  </label>
-                  <textarea
-                    id="address"
-                    placeholder="Enter your address"
-                    rows={2}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
-                    value={formData.address}
-                    onChange={(e) => setFormData({...formData, address: e.target.value})}
-                  />
+                  <div>
+                    <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Address
+                    </label>
+                    <input
+                      type="text"
+                      id="address"
+                      placeholder="Enter your address"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      value={formData.address}
+                      onChange={(e) => setFormData({...formData, address: e.target.value})}
+                    />
+                  </div>
                 </div>
 
                 <button 
                   type="submit" 
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-4 rounded-xl font-semibold text-lg shadow-lg shadow-blue-500/30 hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-lg font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
                 >
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
@@ -247,21 +252,21 @@ const Signup = () => {
         </div>
 
         {/* Benefits */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-          <div className="bg-white/60 backdrop-blur rounded-xl p-4">
-            <div className="text-2xl mb-2">🔒</div>
-            <div className="font-semibold text-gray-900">Secure</div>
-            <div className="text-sm text-gray-600">Your data is safe with us</div>
+        <div className="mt-6 grid grid-cols-3 gap-3 text-center">
+          <div className="bg-white/70 backdrop-blur rounded-xl p-3 hover:shadow-md transition">
+            <div className="text-2xl mb-1">🔒</div>
+            <div className="font-semibold text-gray-900 text-sm">Secure</div>
+            <div className="text-xs text-gray-600">Data protected</div>
           </div>
-          <div className="bg-white/60 backdrop-blur rounded-xl p-4">
-            <div className="text-2xl mb-2">⚡</div>
-            <div className="font-semibold text-gray-900">Fast</div>
-            <div className="text-sm text-gray-600">Quick account setup</div>
+          <div className="bg-white/70 backdrop-blur rounded-xl p-3 hover:shadow-md transition">
+            <div className="text-2xl mb-1">⚡</div>
+            <div className="font-semibold text-gray-900 text-sm">Fast</div>
+            <div className="text-xs text-gray-600">Quick setup</div>
           </div>
-          <div className="bg-white/60 backdrop-blur rounded-xl p-4">
-            <div className="text-2xl mb-2">💰</div>
-            <div className="font-semibold text-gray-900">Free</div>
-            <div className="text-sm text-gray-600">No hidden charges</div>
+          <div className="bg-white/70 backdrop-blur rounded-xl p-3 hover:shadow-md transition">
+            <div className="text-2xl mb-1">💰</div>
+            <div className="font-semibold text-gray-900 text-sm">Free</div>
+            <div className="text-xs text-gray-600">No charges</div>
           </div>
         </div>
       </div>
