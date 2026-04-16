@@ -16,14 +16,22 @@ const Login = () => {
     try {
       const response = await authAPI.login(formData);
       
-      // Check if account is blocked
       if (response.data.blocked) {
         alert('❌ Account Blocked\n\nYour account has been blocked by admin.\nPlease contact support for approval.');
         setLoading(false);
         return;
       }
-      
-      login(response.data);
+
+      const token = response.data.token;
+      const userInfo = response.data.user;
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userInfo));
+      const dashboards = {
+        superadmin: '/superadmin/dashboard',
+        vehicleadmin: '/vehicleadmin/dashboard',
+        driver: '/driver/dashboard'
+      };
+      window.location.href = dashboards[userInfo.role] || '/driver/dashboard';
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'Invalid credentials';
       if (error.response?.data?.blocked) {
