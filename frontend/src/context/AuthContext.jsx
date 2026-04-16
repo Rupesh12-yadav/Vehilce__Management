@@ -18,12 +18,20 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = (userData) => {
+  const login = (userData, navigateFn) => {
     const token = userData.token;
     const userInfo = userData.user || userData;
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(userInfo));
     setUser(userInfo);
+    if (navigateFn) {
+      const dashboards = {
+        superadmin: '/superadmin/dashboard',
+        vehicleadmin: '/vehicleadmin/dashboard',
+        driver: '/driver/dashboard'
+      };
+      navigateFn(dashboards[userInfo.role] || '/driver/dashboard', { replace: true });
+    }
   };
 
   const logout = () => {

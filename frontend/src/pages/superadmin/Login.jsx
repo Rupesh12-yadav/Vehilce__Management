@@ -23,17 +23,7 @@ const Login = () => {
         return;
       }
       
-      login(response.data);
-      
-      // Navigate based on role
-      const role = response.data.user?.role || response.data.role;
-      if (role === 'superadmin') {
-        navigate('/superadmin/dashboard');
-      } else if (role === 'vehicleadmin') {
-        navigate('/vehicleadmin/dashboard');
-      } else {
-        navigate('/driver/dashboard');
-      }
+      login(response.data, navigate);
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'Invalid credentials';
       if (error.response?.data?.blocked) {

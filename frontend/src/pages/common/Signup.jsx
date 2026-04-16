@@ -24,17 +24,7 @@ const Signup = () => {
     setLoading(true);
     try {
       const response = await API.post('/auth/signup', formData);
-      login(response.data);
-      
-      // Navigate based on role - role check page logic
-      const userRole = response.data.user?.role || response.data.role;
-      if (userRole === 'superadmin') {
-        navigate('/superadmin/dashboard');
-      } else if (userRole === 'vehicleadmin') {
-        navigate('/vehicleadmin/dashboard');
-      } else {
-        navigate('/driver/dashboard');
-      }
+      login(response.data, navigate);
     } catch (err) {
       setError(err.response?.data?.message || 'Signup failed. Please try again.');
     } finally {
