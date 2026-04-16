@@ -1,11 +1,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-
-const JWT_SECRET = 'rentease_secret_2024';
+const { JWT_SECRET, JWT_EXPIRES_IN } = require('../config/jwt');
 
 const generateToken = (id) => {
-  return jwt.sign({ id }, JWT_SECRET, { expiresIn: '30d' });
+  return jwt.sign({ id }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 };
 
 exports.signup = async (req, res) => {

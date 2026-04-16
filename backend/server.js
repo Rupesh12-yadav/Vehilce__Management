@@ -10,12 +10,6 @@ const path = require('path');
 const connectDB = require('./config/db');
 require('dotenv').config();
 
-// Set JWT_SECRET if not provided
-if (!process.env.JWT_SECRET) {
-  process.env.JWT_SECRET = 'rentease_fallback_secret_2024';
-  console.warn('WARNING: JWT_SECRET not set, using fallback value');
-}
-
 const app = express();
 
 // Connect Database

@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-
-const JWT_SECRET = 'rentease_secret_2024';
+const { JWT_SECRET } = require('../config/jwt');
 
 const auth = async (req, res, next) => {
   try {
