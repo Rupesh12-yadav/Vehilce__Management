@@ -23,7 +23,7 @@ const Login = () => {
         return;
       }
       
-      login(response.data, navigate);
+      login(response.data);
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'Invalid credentials';
       if (error.response?.data?.blocked) {

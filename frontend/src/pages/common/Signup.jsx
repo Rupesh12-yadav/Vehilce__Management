@@ -24,7 +24,7 @@ const Signup = () => {
     setLoading(true);
     try {
       const response = await API.post('/auth/signup', formData);
-      login(response.data, navigate);
+      login(response.data);
     } catch (err) {
       setError(err.response?.data?.message || 'Signup failed. Please try again.');
     } finally {
