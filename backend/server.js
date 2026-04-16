@@ -10,6 +10,12 @@ const path = require('path');
 const connectDB = require('./config/db');
 require('dotenv').config();
 
+// Validate required env vars at startup
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET is not set in environment variables');
+  process.exit(1);
+}
+
 const app = express();
 
 // Connect Database
