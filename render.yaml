@@ -1,5 +1,4 @@
 services:
-  # Fullstack Service - Backend Serving Frontend
   - type: web
     name: vehicle-management-app
     env: node
@@ -14,9 +13,9 @@ services:
         value: 10000
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        sync: false
       - key: JWT_SECRET
+        value: rentease_secret_2024
+      - key: MONGODB_URI
         sync: false
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
