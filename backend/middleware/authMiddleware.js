@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'rentease_fallback_secret_2024_@#$';
+const JWT_SECRET = process.env.JWT_SECRET || 'rentease_fallback_secret_2024';
 
 const auth = async (req, res, next) => {
   try {

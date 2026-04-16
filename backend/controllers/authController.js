@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'rentease_fallback_secret_2024_@#$';
+const JWT_SECRET = process.env.JWT_SECRET || 'rentease_fallback_secret_2024';
 
 const generateToken = (id) => {
   return jwt.sign({ id }, JWT_SECRET, { expiresIn: '30d' });
