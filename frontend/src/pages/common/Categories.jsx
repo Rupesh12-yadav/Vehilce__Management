@@ -4,7 +4,7 @@ const Categories = () => {
   const categories = [
     { 
       name: "Cars", 
-      img: "https://static.cdn.circlesix.co/uploads/posts/2016/10/8827c152e352b55a01002f8fcf9d58f2.jpg?width=400",
+      img: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=400&q=80",
       icon: "🚗",
       count: "50+ Vehicles"
     },

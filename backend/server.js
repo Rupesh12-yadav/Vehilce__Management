@@ -8,7 +8,6 @@ const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
 const path = require('path');
 const connectDB = require('./config/db');
-require('dotenv').config();
 
 const app = express();
 
@@ -31,7 +30,7 @@ app.use(helmet({
   }
 }));
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -108,7 +107,7 @@ if (process.env.NODE_ENV === 'production') {
 
 
 
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 
 // Graceful shutdown
 const gracefulShutdown = () => {

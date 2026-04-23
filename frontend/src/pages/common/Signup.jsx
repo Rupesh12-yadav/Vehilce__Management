@@ -24,17 +24,15 @@ const Signup = () => {
     setLoading(true);
     try {
       const response = await API.post('/auth/signup', formData);
-      if (response.data.success) {
-        const token = response.data.token;
-        const userInfo = response.data.user;
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(userInfo));
+      if (response.data.success && response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
         const dashboards = {
           superadmin: '/superadmin/dashboard',
           vehicleadmin: '/vehicleadmin/dashboard',
           driver: '/driver/dashboard'
         };
-        window.location.href = dashboards[userInfo.role] || '/driver/dashboard';
+        window.location.replace(dashboards[response.data.user.role] || '/driver/dashboard');
       } else {
         setError(response.data.message || 'Signup failed.');
       }

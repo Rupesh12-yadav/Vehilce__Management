@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     index: true
   },
-  phone: { type: String, required: true, index: true },
+  phone: { type: String, required: false, index: true },
   address: { type: String },
   licenseNumber: { type: String, index: true },
   aadharNumber: { type: String },
