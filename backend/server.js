@@ -20,11 +20,12 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       connectSrc: ["'self'", "https://checkout.razorpay.com", "https://api.razorpay.com", "https://lumberjack.razorpay.com"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com", "https://fonts.googleapis.com"],
+      styleSrcElem: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com", "https://fonts.googleapis.com"],
       scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com", "https://cdn.razorpay.com"],
       scriptSrcElem: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com", "https://cdn.razorpay.com"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
-      fontSrc: ["'self'", "data:", "https:"],
+      fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
       frameSrc: ["'self'", "https://api.razorpay.com", "https://checkout.razorpay.com"]
     }
   }
@@ -98,10 +99,16 @@ app.get('/api/health', (req, res) => {
 
 // Serve Frontend Static Files (Production)
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/build')));
+  // Serve static files with proper MIME types and caching
+  const frontendPath = path.join(__dirname, '../frontend/build');
+  app.use(express.static(frontendPath, {
+    maxAge: '1y',
+    etag: true
+  }));
   
+  // Handle React Router - serve index.html for all non-API routes
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+    res.sendFile(path.join(frontendPath, 'index.html'));
   });
 }
 
